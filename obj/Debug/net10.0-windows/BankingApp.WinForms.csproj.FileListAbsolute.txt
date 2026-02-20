@@ -1,0 +1,14 @@
+C:\Users\justi\banking-app-winforms\obj\Debug\net10.0-windows\BankingApp.WinForms.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\justi\banking-app-winforms\obj\Debug\net10.0-windows\BankingApp.WinForms.AssemblyInfoInputs.cache
+C:\Users\justi\banking-app-winforms\obj\Debug\net10.0-windows\BankingApp.WinForms.AssemblyInfo.cs
+C:\Users\justi\banking-app-winforms\obj\Debug\net10.0-windows\BankingApp.WinForms.csproj.CoreCompileInputs.cache
+C:\Users\justi\banking-app-winforms\bin\Debug\net10.0-windows\BankingApp.WinForms.exe
+C:\Users\justi\banking-app-winforms\bin\Debug\net10.0-windows\BankingApp.WinForms.deps.json
+C:\Users\justi\banking-app-winforms\bin\Debug\net10.0-windows\BankingApp.WinForms.runtimeconfig.json
+C:\Users\justi\banking-app-winforms\bin\Debug\net10.0-windows\BankingApp.WinForms.dll
+C:\Users\justi\banking-app-winforms\bin\Debug\net10.0-windows\BankingApp.WinForms.pdb
+C:\Users\justi\banking-app-winforms\obj\Debug\net10.0-windows\BankingApp.WinForms.dll
+C:\Users\justi\banking-app-winforms\obj\Debug\net10.0-windows\refint\BankingApp.WinForms.dll
+C:\Users\justi\banking-app-winforms\obj\Debug\net10.0-windows\BankingApp.WinForms.pdb
+C:\Users\justi\banking-app-winforms\obj\Debug\net10.0-windows\BankingApp.WinForms.genruntimeconfig.cache
+C:\Users\justi\banking-app-winforms\obj\Debug\net10.0-windows\ref\BankingApp.WinForms.dll
