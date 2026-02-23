@@ -15,15 +15,81 @@ public partial class MainForm : Form
     public MainForm()
     {
         Text = "Banking App";
+        Rectangle bounds = Screen.PrimaryScreen?.WorkingArea ?? new Rectangle(0, 0, 1024, 768);
+        SetBounds(bounds.X, bounds.Y, bounds.Width, bounds.Height);
+        WindowState = FormWindowState.Normal;
+        BackColor = Theme.Background;
+        MinimumSize = new Size(1024, 600);
+        StartPosition = FormStartPosition.CenterScreen;
 
-        var nav = new Panel { Height = 50, Dock = DockStyle.Top, BackColor = Color.LightGray };
-        var lblBrand = new Label { Text = "🏦 Banking App", Location = new Point(10, 12), AutoSize = true, Font = new Font("Segoe UI", 12, FontStyle.Bold) };
-        var btnDash = new Button { Text = "Dashboard", Location = new Point(180, 10), Size = new Size(90, 28) };
-        var btnAccounts = new Button { Text = "Accounts", Location = new Point(275, 10), Size = new Size(90, 28) };
-        var btnTrans = new Button { Text = "Transactions", Location = new Point(370, 10), Size = new Size(90, 28) };
-        var btnTransfer = new Button { Text = "Transfer", Location = new Point(465, 10), Size = new Size(90, 28) };
-        var lblUser = new Label { Text = AuthService.Instance.GetUsername(), Location = new Point(600, 14), AutoSize = true };
-        var btnLogout = new Button { Text = "Logout", Location = new Point(680, 10), Size = new Size(70, 28) };
+        var nav = new Panel
+        {
+            Height = 56,
+            Dock = DockStyle.Top,
+            BackColor = Theme.Surface,
+            Padding = new Padding(Theme.PadXLarge, Theme.PadMedium, Theme.PadXLarge, Theme.PadMedium)
+        };
+        var lblBrand = new Label
+        {
+            Text = "🏦 Banking App",
+            Location = new Point(Theme.PadMedium, 14),
+            AutoSize = true,
+            Font = new Font("Segoe UI", 12, FontStyle.Bold),
+            ForeColor = Theme.Primary
+        };
+        var btnDash = new Button
+        {
+            Text = "Dashboard",
+            Location = new Point(200, 12),
+            Size = new Size(100, 32),
+            FlatStyle = FlatStyle.Flat,
+            BackColor = Theme.Surface,
+            ForeColor = Theme.TextSecondary
+        };
+        var btnAccounts = new Button
+        {
+            Text = "Accounts",
+            Location = new Point(308, 12),
+            Size = new Size(100, 32),
+            FlatStyle = FlatStyle.Flat,
+            BackColor = Theme.Surface,
+            ForeColor = Theme.TextSecondary
+        };
+        var btnTrans = new Button
+        {
+            Text = "Transactions",
+            Location = new Point(416, 12),
+            Size = new Size(100, 32),
+            FlatStyle = FlatStyle.Flat,
+            BackColor = Theme.Surface,
+            ForeColor = Theme.TextSecondary
+        };
+        var btnTransfer = new Button
+        {
+            Text = "Transfer",
+            Location = new Point(524, 12),
+            Size = new Size(100, 32),
+            FlatStyle = FlatStyle.Flat,
+            BackColor = Theme.Surface,
+            ForeColor = Theme.TextSecondary
+        };
+        var lblUser = new Label
+        {
+            Text = AuthService.Instance.GetUsername(),
+            Location = new Point(729, 16),
+            AutoSize = true,
+            ForeColor = Theme.TextPrimary,
+            Font = Theme.BodyFont
+        };
+        var btnLogout = new Button
+        {
+            Text = "Logout",
+            Location = new Point(809, 12),
+            Size = new Size(80, 32),
+            FlatStyle = FlatStyle.Flat,
+            BackColor = Theme.Danger,
+            ForeColor = Color.White
+        };
 
         btnDash.Click += (_, _) => ShowView("Dashboard");
         btnAccounts.Click += (_, _) => ShowView("Accounts");
@@ -35,15 +101,20 @@ public partial class MainForm : Form
             var login = new LoginForm();
             Hide();
             if (login.ShowDialog() == DialogResult.OK)
-            {
                 Show();
-            }
             else
                 Close();
         };
 
         nav.Controls.AddRange(new Control[] { lblBrand, btnDash, btnAccounts, btnTrans, btnTransfer, lblUser, btnLogout });
-        _contentPanel = new Panel { Dock = DockStyle.Fill, Padding = new Padding(10) };
+
+        _contentPanel = new Panel
+        {
+            Dock = DockStyle.Fill,
+            BackColor = Theme.Background,
+            Padding = new Padding(Theme.PadXLarge),
+            AutoScroll = true
+        };
 
         _dashboardView = new DashboardView(Navigate);
         _accountsView = new AccountsView(Navigate);
@@ -53,8 +124,9 @@ public partial class MainForm : Form
 
         _dashboardView.Dock = _accountsView.Dock = _accountDetailsView.Dock = _transactionsView.Dock = _transferView.Dock = DockStyle.Fill;
 
-        Controls.Add(_contentPanel);
         Controls.Add(nav);
+        Controls.Add(_contentPanel);
+
         _contentPanel.Controls.Add(_dashboardView);
         _contentPanel.Controls.Add(_accountsView);
         _contentPanel.Controls.Add(_accountDetailsView);
@@ -62,6 +134,18 @@ public partial class MainForm : Form
         _contentPanel.Controls.Add(_transferView);
 
         ShowView("Dashboard");
+        Load += (_, _) =>
+        {
+            WindowState = FormWindowState.Maximized;
+            PerformLayout();
+        };
+        Shown += (_, _) =>
+        {
+            WindowState = FormWindowState.Maximized;
+            PerformLayout();
+        };
+
+    
     }
 
     public void Navigate(string view, string? param = null)

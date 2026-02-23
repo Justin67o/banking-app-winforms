@@ -15,16 +15,32 @@ public class TransferView : UserControl
     public TransferView(Action<string, string?> navigate)
     {
         _navigate = navigate;
+        BackColor = Theme.Background;
         BuildUi();
     }
 
-    private void BuildUi()
+        private void BuildUi()
     {
-        var flow = new FlowLayoutPanel { Dock = DockStyle.Fill, FlowDirection = FlowDirection.TopDown, AutoScroll = true, Padding = new Padding(10) };
-        flow.Controls.Add(new Label { Text = "Transfer Money", Font = new Font("Segoe UI", 16) });
-        flow.Controls.Add(new Label { Text = "Send money between your accounts" });
-        flow.Controls.Add(new Label { Text = "From Account" });
-        _comboFrom = new ComboBox { Width = 350, DropDownStyle = ComboBoxStyle.DropDownList };
+        var scroll = new Panel { Dock = DockStyle.Fill, AutoScroll = true, BackColor = Theme.Background };
+        var contentWrap = new Panel { AutoSize = true, BackColor = Theme.Background, MaximumSize = new Size(800, 0) };
+        var flow = new FlowLayoutPanel
+        {
+            FlowDirection = FlowDirection.TopDown,
+            WrapContents = false,
+            AutoSize = true,
+            BackColor = Theme.Background,
+            Padding = new Padding(Theme.PadMedium)
+        };
+
+        flow.Controls.Add(new Label { Text = "Transfer Money", Font = Theme.TitleFont, ForeColor = Theme.TextPrimary, AutoSize = true, Margin = new Padding(-Theme.PadMedium, 0, 0, 0) });
+        flow.Controls.Add(new Label { Text = "Send money between your accounts", Font = Theme.BodyFont, ForeColor = Theme.TextSecondary, AutoSize = true, Margin = new Padding(0, Theme.PadSmall, 0, Theme.PadLarge) });
+
+        var card = new Panel { BackColor = Theme.Surface, BorderStyle = BorderStyle.FixedSingle, Size = new Size(520, 380), Padding = new Padding(Theme.PadXLarge) };
+        flow.Controls.Add(card);
+
+        var y = 20;
+        card.Controls.Add(new Label { Text = "From Account", Location = new Point(20, y), ForeColor = Theme.TextPrimary, Font = Theme.BodyFont }); y += 24;
+        _comboFrom = new ComboBox { Location = new Point(20, y), Width = 400, DropDownStyle = ComboBoxStyle.DropDownList, Font = Theme.BodyFont }; y += 32;
         _comboFrom.SelectedIndexChanged += (_, _) =>
         {
             _comboTo!.Items.Clear();
@@ -33,30 +49,40 @@ public class TransferView : UserControl
                 _comboTo.Items.Add(new AccountItem { Id = a.Id, Text = $"{a.AccountName} ({a.AccountNumber})" });
             _comboTo.DisplayMember = "Text";
         };
-        flow.Controls.Add(_comboFrom);
-        flow.Controls.Add(new Label { Text = "To Account" });
-        _comboTo = new ComboBox { Width = 350, DropDownStyle = ComboBoxStyle.DropDownList };
-        flow.Controls.Add(_comboTo);
-        flow.Controls.Add(new Label { Text = "Amount" });
-        _numAmount = new NumericUpDown { Width = 120, Minimum = 0.0m, Maximum = 999999m, DecimalPlaces = 2 };
-        flow.Controls.Add(_numAmount);
-        flow.Controls.Add(new Label { Text = "Description (optional)" });
-        _txtDesc = new TextBox { Width = 250 };
-        flow.Controls.Add(_txtDesc);
-        _lblError = new Label { AutoSize = true, ForeColor = Color.Red };
-        _lblSuccess = new Label { AutoSize = true, ForeColor = Color.Green };
-        flow.Controls.Add(_lblError!);
-        flow.Controls.Add(_lblSuccess!);
-        var btnCancel = new Button { Text = "Cancel", Size = new Size(80, 28) };
-        var btnTransfer = new Button { Text = "Transfer Money", Size = new Size(120, 28) };
+        card.Controls.Add(_comboFrom);
+
+        card.Controls.Add(new Label { Text = "To Account", Location = new Point(20, y), ForeColor = Theme.TextPrimary, Font = Theme.BodyFont }); y += 24;
+        _comboTo = new ComboBox { Location = new Point(20, y), Width = 400, DropDownStyle = ComboBoxStyle.DropDownList, Font = Theme.BodyFont }; y += 32;
+        card.Controls.Add(_comboTo);
+
+        card.Controls.Add(new Label { Text = "Amount", Location = new Point(20, y), ForeColor = Theme.TextPrimary, Font = Theme.BodyFont }); y += 24;
+        _numAmount = new NumericUpDown { Location = new Point(20, y), Width = 140, Minimum = 0.0m, Maximum = 999999m, DecimalPlaces = 2, Font = Theme.BodyFont }; y += 36;
+        card.Controls.Add(_numAmount);
+
+        card.Controls.Add(new Label { Text = "Description (optional)", Location = new Point(20, y), ForeColor = Theme.TextPrimary, Font = Theme.BodyFont }); y += 24;
+        _txtDesc = new TextBox { Location = new Point(20, y), Width = 400, Font = Theme.BodyFont }; y += 36;
+        card.Controls.Add(_txtDesc);
+
+        _lblError = new Label { Location = new Point(20, y), AutoSize = true, ForeColor = Theme.Danger, BackColor = Theme.ErrorBg, Font = Theme.BodySmallFont }; y += 28;
+        _lblSuccess = new Label { Location = new Point(20, y), AutoSize = true, ForeColor = Theme.Secondary, BackColor = Theme.SuccessBg, Font = Theme.BodySmallFont }; y += 32;
+        card.Controls.Add(_lblError!);
+        card.Controls.Add(_lblSuccess!);
+
+        var btnCancel = new Button { Text = "Cancel", Location = new Point(20, y), Size = new Size(100, 36), BackColor = Theme.Background, ForeColor = Theme.TextPrimary, FlatStyle = FlatStyle.Flat, Font = Theme.BodyFont };
+        var btnTransfer = new Button { Text = "Transfer Money", Location = new Point(130, y), Size = new Size(140, 36), BackColor = Theme.Primary, ForeColor = Color.White, FlatStyle = FlatStyle.Flat, Font = Theme.BodyFont };
         btnCancel.Click += (_, _) => ResetForm();
-        btnTransfer.Click += btnTransfer_Click;
-        flow.Controls.Add(btnCancel);
-        flow.Controls.Add(btnTransfer);
-        Controls.Add(flow);
+        btnTransfer.Click += BtnTransfer_Click;
+        card.Controls.Add(btnCancel);
+        card.Controls.Add(btnTransfer);
+
+        contentWrap.Controls.Add(flow);
+        flow.Location = new Point(0, Theme.PadMedium);
+        scroll.Controls.Add(contentWrap);
+        contentWrap.Location = new Point(0, 0);
+        Controls.Add(scroll);
     }
 
-    private void btnTransfer_Click(object? sender, EventArgs e)
+    private void BtnTransfer_Click(object? sender, EventArgs e)
     {
         _lblError!.Text = "";
         _lblSuccess!.Text = "";

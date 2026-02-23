@@ -12,3 +12,4 @@ C:\Users\justi\banking-app-winforms\obj\Debug\net10.0-windows\refint\BankingApp.
 C:\Users\justi\banking-app-winforms\obj\Debug\net10.0-windows\BankingApp.WinForms.pdb
 C:\Users\justi\banking-app-winforms\obj\Debug\net10.0-windows\BankingApp.WinForms.genruntimeconfig.cache
 C:\Users\justi\banking-app-winforms\obj\Debug\net10.0-windows\ref\BankingApp.WinForms.dll
+C:\Users\justi\banking-app-winforms\obj\Debug\net10.0-windows\BankingApp.WinForms.sourcelink.json

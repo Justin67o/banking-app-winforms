@@ -11,42 +11,85 @@ public class LoginForm : Form
     public LoginForm()
     {
         Text = "Banking App";
-        Size = new Size(300, 320);
-        FormBorderStyle = FormBorderStyle.FixedSingle;
+        Size = new Size(460, 440);
         StartPosition = FormStartPosition.CenterScreen;
+        FormBorderStyle = FormBorderStyle.FixedSingle;
+        MaximizeBox = false;
+        BackColor = Theme.Primary;
+
+        var card = new Panel
+        {
+            BackColor = Theme.Surface,
+            BorderStyle = BorderStyle.FixedSingle,
+            Size = new Size(380, 340),
+            Location = new Point(40, 30)
+        };
 
         var lblTitle = new Label
         {
             Text = "🏦 Banking App",
-            Font = new Font("Segoe UI", 14),
-            Location = new Point(20, 20),
+            Font = Theme.TitleFont,
+            ForeColor = Theme.Primary,
+            Location = new Point(Theme.PadLarge, 12),
             AutoSize = true
         };
         var lblSub = new Label
         {
             Text = "Sign in to your account",
-            Location = new Point(20, 50),
+            ForeColor = Theme.TextSecondary,
+            Font = Theme.BodyFont,
+            Location = new Point(Theme.PadLarge, 58),
             AutoSize = true
         };
-        var lblUser = new Label { Text = "Username", Location = new Point(20, 85) };
-        _txtUsername = new TextBox { Location = new Point(20, 105), Size = new Size(240, 23) };
-        var lblPass = new Label { Text = "Password", Location = new Point(20, 135) };
-        _txtPassword = new TextBox { Location = new Point(20, 155), Size = new Size(240, 23), PasswordChar = '*' };
-        _lblError = new Label { Location = new Point(20, 185), AutoSize = true, ForeColor = Color.Red };
-        var lblHint = new Label { Text = "Demo credentials: user / password", Location = new Point(20, 250), AutoSize = true };
-        var btnSignIn = new Button { Text = "Sign In", Location = new Point(20, 210), Size = new Size(100, 30) };
-
+        var lblUser = new Label { Text = "Username", Location = new Point(Theme.PadLarge, 92), ForeColor = Theme.TextPrimary, Font = Theme.BodyFont };
+        _txtUsername = new TextBox
+        {
+            Location = new Point(Theme.PadLarge, 115),
+            Size = new Size(320, 24),
+            BorderStyle = BorderStyle.FixedSingle,
+            Font = Theme.BodyFont
+        };
+        var lblPass = new Label { Text = "Password", Location = new Point(Theme.PadLarge, 150), ForeColor = Theme.TextPrimary, Font = Theme.BodyFont };
+        _txtPassword = new TextBox
+        {
+            Location = new Point(Theme.PadLarge, 175),
+            Size = new Size(320, 24),
+            PasswordChar = '*',
+            BorderStyle = BorderStyle.FixedSingle,
+            Font = Theme.BodyFont
+        };
+        _lblError = new Label
+        {
+            Location = new Point(Theme.PadLarge, 208),
+            AutoSize = true,
+            ForeColor = Theme.Danger,
+            BackColor = Theme.ErrorBg,
+            Font = Theme.BodySmallFont
+        };
+        var lblHint = new Label
+        {
+            Text = "Demo credentials: user / password",
+            Location = new Point(Theme.PadLarge, 268),
+            AutoSize = true,
+            ForeColor = Theme.TextSecondary,
+            Font = Theme.BodySmallFont
+        };
+        var btnSignIn = new Button
+        {
+            Text = "Sign In",
+            Location = new Point(Theme.PadLarge, 233),
+            Size = new Size(120, 36),
+            BackColor = Theme.Primary,
+            ForeColor = Color.White,
+            FlatStyle = FlatStyle.Flat,
+            Font = new Font("Segoe UI", 10, FontStyle.Bold)
+        };
         btnSignIn.Click += BtnSignIn_Click;
 
-        Controls.Add(lblTitle);
-        Controls.Add(lblSub);
-        Controls.Add(lblUser);
-        Controls.Add(_txtUsername);
-        Controls.Add(lblPass);
-        Controls.Add(_txtPassword);
-        Controls.Add(_lblError);
-        Controls.Add(lblHint);
-        Controls.Add(btnSignIn);
+        card.Controls.AddRange(new Control[] { lblTitle, lblSub, lblUser, _txtUsername, lblPass, _txtPassword, _lblError, lblHint, btnSignIn });
+        Controls.Add(card);
+        Load += (_, _) => card.Location = new Point(Math.Max(0, (ClientSize.Width - card.Width) / 2), card.Top);
+    
     }
 
     private void BtnSignIn_Click(object? sender, EventArgs e)
@@ -58,8 +101,6 @@ public class LoginForm : Form
             Close();
         }
         else
-        {
             _lblError.Text = "Invalid username or password";
-        }
     }
 }

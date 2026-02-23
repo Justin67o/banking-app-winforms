@@ -1,4 +1,3 @@
-using System.Windows.Forms;
 using BankingApp.WinForms.Models;
 using BankingApp.WinForms.Services;
 
@@ -7,64 +6,182 @@ namespace BankingApp.WinForms.Views;
 public class DashboardView : UserControl
 {
     private readonly Action<string, string?> _navigate;
-    private FlowLayoutPanel? _accountsPanel;
-    private FlowLayoutPanel? _transactionsPanel;
+    private Panel? _contentWrap;
+    private FlowLayoutPanel? _accountsFlow;
+    private FlowLayoutPanel? _transFlow;
     private Label? _lblTotalBalance;
     private Label? _lblAccountCount;
-    private Label? _lblRecentCount;
+    private Label? _lblRecentCount;    
+    private Panel? _scrollPanel;
+    private Panel? _leftBox;
+    private Panel? _rightBox;
+    private int _boxWidth;
 
     public DashboardView(Action<string, string?> navigate)
     {
         _navigate = navigate;
+        BackColor = Theme.Background;
         BuildUi();
     }
 
     private void BuildUi()
     {
-        var accountService = AccountService.Instance;
-        var transactionService = TransactionService.Instance;
+        _scrollPanel = new Panel { Dock = DockStyle.Fill, AutoScroll = true, BackColor = Theme.Background };
+        var scroll = _scrollPanel;
+        _contentWrap = new Panel { AutoSize = true, AutoSizeMode = AutoSizeMode.GrowAndShrink, BackColor = Theme.Background, Padding = new Padding(Theme.PadMedium) };
+        var flow = new FlowLayoutPanel { FlowDirection = FlowDirection.TopDown, WrapContents = false, AutoSize = true, BackColor = Theme.Background };
 
-        var scroll = new Panel { Dock = DockStyle.Fill, AutoScroll = true };
-        var flow = new FlowLayoutPanel { FlowDirection = FlowDirection.TopDown, WrapContents = false, AutoSize = true, AutoSizeMode = AutoSizeMode.GrowAndShrink };
+        flow.Controls.Add(new Label { Text = "Dashboard", Font = Theme.TitleFont, ForeColor = Theme.TextPrimary, AutoSize = true });
+        flow.Controls.Add(new Label { Text = "Welcome back! Here's your financial overview.", Font = Theme.BodyFont, ForeColor = Theme.TextSecondary, AutoSize = true, Margin = new Padding(0, Theme.PadSmall, 0, Theme.PadLarge) });
+        
+        const int headerRowWidth = 360 + Theme.PadMedium + 360 + Theme.PadMedium + 360; // Total Balance + Accounts + Recent
+        _boxWidth = (headerRowWidth - Theme.PadMedium) / 2;
+        const int boxHeight = 350;
+        int boxContentWidth = _boxWidth - Theme.PadMedium * 2;
+        const int minBoxHeight = 120;
 
-        flow.Controls.Add(new Label { Text = "Dashboard", Font = new Font("Segoe UI", 16), AutoSize = true });
-        flow.Controls.Add(new Label { Text = "Welcome back! Here's your financial overview.", AutoSize = true });
+        var cardsFlow = new FlowLayoutPanel { FlowDirection = FlowDirection.LeftToRight, AutoSize = true };
+        _lblTotalBalance = new Label
+        {
+            Text = "💰 Total Balance: $0.00",
+            AutoSize = true,
+            MinimumSize = new Size(200, 70),
+            MaximumSize = new Size(500, 0),
+            BackColor = Theme.Surface,
+            BorderStyle = BorderStyle.FixedSingle,
+            TextAlign = ContentAlignment.MiddleCenter,
+            Font = Theme.SectionFont,
+            Padding = new Padding(Theme.PadMedium),
+            ForeColor = Theme.TextPrimary
+        };
+        _lblAccountCount = new Label
+        {
+            Text = "🏦 Accounts: 0",
+            Size = new Size(360, 70),
+            BackColor = Theme.Surface,
+            BorderStyle = BorderStyle.FixedSingle,
+            TextAlign = ContentAlignment.MiddleCenter,
+            Font = Theme.SectionFont,
+            Margin = new Padding(Theme.PadMedium, 0, 0, 0)
+        };
+        _lblRecentCount = new Label
+        {
+            Text = "📊 Recent: 0",
+            Size = new Size(360, 70),
+            BackColor = Theme.Surface,
+            BorderStyle = BorderStyle.FixedSingle,
+            TextAlign = ContentAlignment.MiddleCenter,
+            Font = Theme.SectionFont,
+            Margin = new Padding(Theme.PadMedium, 0, 0, 0)
+        };
+        cardsFlow.Controls.Add(_lblTotalBalance);
+        cardsFlow.Controls.Add(_lblAccountCount);
+        cardsFlow.Controls.Add(_lblRecentCount);
+        flow.Controls.Add(cardsFlow);
 
-        var cards = new FlowLayoutPanel { FlowDirection = FlowDirection.LeftToRight, AutoSize = true };
-        _lblTotalBalance = new Label { Text = $"💰 Total Balance: {accountService.GetTotalBalance():C2}", Size = new Size(180, 50), BorderStyle = BorderStyle.FixedSingle, TextAlign = ContentAlignment.MiddleCenter };
-        _lblAccountCount = new Label { Text = $"🏦 Accounts: {accountService.GetAccounts().Count}", Size = new Size(120, 50), BorderStyle = BorderStyle.FixedSingle, TextAlign = ContentAlignment.MiddleCenter };
-        _lblRecentCount = new Label { Text = "📊 Recent Transactions: 5", Size = new Size(180, 50), BorderStyle = BorderStyle.FixedSingle, TextAlign = ContentAlignment.MiddleCenter };
-        cards.Controls.AddRange(new Control[] { _lblTotalBalance, _lblAccountCount, _lblRecentCount });
-        flow.Controls.Add(cards);
+        var twoCols = new FlowLayoutPanel { FlowDirection = FlowDirection.LeftToRight, AutoSize = true, WrapContents = false, Margin = new Padding(0, Theme.PadXLarge, 0, 0) };
 
-        flow.Controls.Add(new Label { Text = "Your Accounts", Font = new Font("Segoe UI", 12), AutoSize = true });
-        var viewAllAccounts = new LinkLabel { Text = "View All →", AutoSize = true };
-        viewAllAccounts.Click += (_, _) => _navigate("Accounts", null);
-        flow.Controls.Add(viewAllAccounts);
+        var leftBox = new Panel
+        {
+            BackColor = Theme.Surface,
+            BorderStyle = BorderStyle.FixedSingle,
+            Padding = new Padding(Theme.PadMedium),
+            MinimumSize = new Size(_boxWidth, minBoxHeight),
+            Size = new Size(_boxWidth, minBoxHeight),
+            Margin = new Padding(0, 0, Theme.PadMedium, 0)
+        };
+        _leftBox = leftBox;
+        var leftCol = new FlowLayoutPanel { Dock = DockStyle.Fill, FlowDirection = FlowDirection.TopDown, AutoSize = true };
+        var headerAcc = new TableLayoutPanel { RowCount = 1, ColumnCount = 2, Size = new Size(boxContentWidth, 28), Margin = new Padding(0, 0, 0, Theme.PadSmall) };
+        headerAcc.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100F));
+        headerAcc.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize));
+        headerAcc.Controls.Add(new Label { Text = "Your Accounts", Font = Theme.SectionFont, ForeColor = Theme.TextPrimary, AutoSize = true, Anchor = AnchorStyles.Left }, 0, 0);
+        var viewAllAcc = new LinkLabel { Text = "View All →", AutoSize = true, ForeColor = Theme.Primary, Font = Theme.BodyFont, Anchor = AnchorStyles.Right };
+        viewAllAcc.Click += (_, _) => _navigate("Accounts", null);
+        headerAcc.Controls.Add(viewAllAcc, 1, 0);
+        leftCol.Controls.Add(headerAcc);
+        _accountsFlow = new FlowLayoutPanel { FlowDirection = FlowDirection.TopDown, AutoSize = true };
+        leftCol.Controls.Add(_accountsFlow);
+        leftBox.Controls.Add(leftCol);
 
-        _accountsPanel = new FlowLayoutPanel { FlowDirection = FlowDirection.TopDown, AutoSize = true };
-        flow.Controls.Add(_accountsPanel);
-
-        flow.Controls.Add(new Label { Text = "Recent Transactions", Font = new Font("Segoe UI", 12), AutoSize = true });
-        var viewAllTrans = new LinkLabel { Text = "View All →", AutoSize = true };
+        var rightBox = new Panel
+        {
+            BackColor = Theme.Surface,
+            BorderStyle = BorderStyle.FixedSingle,
+            Padding = new Padding(Theme.PadMedium),
+            MinimumSize = new Size(_boxWidth, minBoxHeight),
+            Size = new Size(_boxWidth, minBoxHeight),
+            Margin = new Padding(0, 0, 0, 0)
+        };
+        _rightBox = rightBox;
+        var rightCol = new TableLayoutPanel
+        {
+            Dock = DockStyle.Fill,
+            ColumnCount = 1,
+            RowCount = 2,
+            Padding = Padding.Empty,
+            Margin = Padding.Empty
+        };
+        rightCol.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100F));
+        rightCol.RowStyles.Add(new RowStyle(SizeType.Absolute, 28 + Theme.PadSmall));
+        rightCol.RowStyles.Add(new RowStyle(SizeType.Percent, 100F));
+        var headerTrans = new TableLayoutPanel { RowCount = 1, ColumnCount = 2, Size = new Size(boxContentWidth, 28), Margin = new Padding(0, 0, 0, Theme.PadSmall) };
+        headerTrans.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100F));
+        headerTrans.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize));
+        headerTrans.Controls.Add(new Label { Text = "Recent Transactions", Font = Theme.SectionFont, ForeColor = Theme.TextPrimary, AutoSize = true, Anchor = AnchorStyles.Left }, 0, 0);
+        var viewAllTrans = new LinkLabel { Text = "View All →", AutoSize = true, ForeColor = Theme.Primary, Font = Theme.BodyFont, Anchor = AnchorStyles.Right };
         viewAllTrans.Click += (_, _) => _navigate("Transactions", null);
-        flow.Controls.Add(viewAllTrans);
+        headerTrans.Controls.Add(viewAllTrans, 1, 0);
+        rightCol.Controls.Add(headerTrans, 0, 0);
+        _transFlow = new FlowLayoutPanel { FlowDirection = FlowDirection.TopDown, AutoSize = true, MinimumSize = new Size(boxContentWidth, 0), Dock = DockStyle.Top };
+        rightCol.Controls.Add(_transFlow, 0, 1);
+        rightBox.Controls.Add(rightCol);
 
-        _transactionsPanel = new FlowLayoutPanel { FlowDirection = FlowDirection.TopDown, AutoSize = true };
-        flow.Controls.Add(_transactionsPanel);
+        twoCols.Controls.Add(leftBox);
+        twoCols.Controls.Add(rightBox);
+        flow.Controls.Add(twoCols);
 
-        var quickFlow = new FlowLayoutPanel { FlowDirection = FlowDirection.LeftToRight, AutoSize = true };
-        var btnTransfer = new Button { Text = "💸 Transfer Money", Size = new Size(140, 32) };
-        var btnViewTrans = new Button { Text = "📋 View Transactions", Size = new Size(140, 32) };
+        // Button row: centered, Transfer Money left, View Transactions right (side by side)
+        int buttonRowWidth = 2 * _boxWidth + Theme.PadMedium;
+        var buttonRow = new Panel { Size = new Size(buttonRowWidth, 60), MinimumSize = new Size(0, 60), Margin = new Padding(0, Theme.PadLarge, 0, 0) };
+        var quickFlow = new FlowLayoutPanel
+        {
+            FlowDirection = FlowDirection.LeftToRight,
+            AutoSize = true,
+            WrapContents = false,
+            Margin = Padding.Empty,
+            Padding = Padding.Empty
+        };
+        var btnTransfer = new Button { Text = "💸 Transfer Money", Size = new Size(190, 40), BackColor = Theme.Primary, ForeColor = Color.White, FlatStyle = FlatStyle.Flat, Font = Theme.BodyFont, Margin = new Padding(0, 0, Theme.PadMedium, 0) };
+        var btnViewTrans = new Button { Text = "📋 View Transactions", Size = new Size(190, 40), BackColor = Theme.Primary, ForeColor = Color.White, FlatStyle = FlatStyle.Flat, Font = Theme.BodyFont, Margin = new Padding(0) };
         btnTransfer.Click += (_, _) => _navigate("Transfer", null);
         btnViewTrans.Click += (_, _) => _navigate("Transactions", null);
         quickFlow.Controls.Add(btnTransfer);
         quickFlow.Controls.Add(btnViewTrans);
-        flow.Controls.Add(quickFlow);
+        buttonRow.Controls.Add(quickFlow);
+        buttonRow.Layout += (_, _) =>
+        {
+            quickFlow.PerformLayout();
+            int x = Math.Max(0, (buttonRow.ClientSize.Width - quickFlow.Width) / 2);
+            int y = Math.Max(0, (buttonRow.ClientSize.Height - quickFlow.Height) / 2);
+            quickFlow.Location = new Point(x, y);
+        };
+        flow.Controls.Add(buttonRow);
 
-        scroll.Controls.Add(flow);
-        flow.Location = new Point(10, 10);
+        _contentWrap.Controls.Add(flow);
+        flow.Location = new Point(0, 0);
+        scroll.Controls.Add(_contentWrap);
         Controls.Add(scroll);
+        void CenterContent()
+        {
+            if (_contentWrap == null || _scrollPanel == null) return;
+            _contentWrap.PerformLayout();
+            int x = Math.Max(0, (_scrollPanel.ClientSize.Width - _contentWrap.Width) / 2);
+            int y = Math.Max(0, (_scrollPanel.ClientSize.Height - _contentWrap.Height) / 2);
+            _contentWrap.Location = new Point(x, y);
+        }
+        scroll.Resize += (_, _) => CenterContent();
+        Load += (_, _) => CenterContent();
     }
 
     public void RefreshData()
@@ -76,40 +193,75 @@ public class DashboardView : UserControl
 
         if (_lblTotalBalance != null) _lblTotalBalance.Text = $"💰 Total Balance: {accountService.GetTotalBalance():C2}";
         if (_lblAccountCount != null) _lblAccountCount.Text = $"🏦 Accounts: {accounts.Count}";
-        if (_lblRecentCount != null) _lblRecentCount.Text = $"📊 Recent Transactions: {transactions.Count}";
+        if (_lblRecentCount != null) _lblRecentCount.Text = $"📊 Recent: {transactions.Count}";
 
-        if (_accountsPanel != null)
+        if (_accountsFlow != null)
         {
-            _accountsPanel.Controls.Clear();
+            _accountsFlow.Controls.Clear();
+            const int contentWidth = 516;
+            const int cardWidth = 480;
             foreach (var acc in accounts)
             {
                 var card = new Button
                 {
-                    Text = $"{acc.AccountName} ({acc.AccountNumber}) {acc.Balance:C2}",
-                    Size = new Size(300, 50),
+                    Text = $"{acc.AccountName} ({acc.AccountNumber})\r\n{acc.Balance:C2}",
+                    Size = new Size(cardWidth, 56),
                     Tag = acc.Id,
-                    FlatStyle = FlatStyle.Flat
+                    FlatStyle = FlatStyle.Flat,
+                    BackColor = Theme.Surface,
+                    ForeColor = acc.Balance < 0 ? Theme.Danger : Theme.TextPrimary,
+                    TextAlign = ContentAlignment.MiddleLeft,
+                    Font = Theme.BodyFont
                 };
-                card.Click += (s, e) => _navigate("AccountDetails", (string)((Button)s!).Tag!);
-                _accountsPanel.Controls.Add(card);
+                card.Click += (s, _) => _navigate("AccountDetails", (string)((Button)s!).Tag!);
+                var wrap = new Panel { Size = new Size(contentWidth, 60), Margin = new Padding(0, 0, 0, Theme.PadSmall) };
+                wrap.Controls.Add(card);
+                card.Location = new Point((contentWidth - cardWidth) / 2, 2);
+                _accountsFlow.Controls.Add(wrap);
             }
         }
 
-        if (_transactionsPanel != null)
+        if (_transFlow != null)
         {
-            _transactionsPanel.Controls.Clear();
+            _transFlow.Controls.Clear();
+            const int contentWidth = 516;
+            const int rowWidth = 480;
             foreach (var t in transactions)
             {
                 var icon = t.Type == "debit" ? "↓" : t.Type == "credit" ? "↑" : "⇄";
                 var sign = t.Type == "debit" ? "-" : "+";
-                var lbl = new Label
-                {
-                    Text = $"{icon} {t.Description} | {t.Date:MMM d, y} | {sign}{t.Amount:C2}",
-                    AutoSize = true,
-                    MaximumSize = new Size(400, 0)
-                };
-                _transactionsPanel.Controls.Add(lbl);
+                var color = t.Type == "debit" ? Theme.Danger : t.Type == "credit" ? Theme.Secondary : Theme.Primary;
+                var row = new Panel { Size = new Size(rowWidth, 44), BackColor = Theme.Surface, BorderStyle = BorderStyle.FixedSingle };
+                var lblIcon = new Label { Text = icon, Size = new Size(40, 40), Location = new Point(Theme.PadSmall, 2), BackColor = Theme.Background, TextAlign = ContentAlignment.MiddleCenter, Font = Theme.BodyFont, ForeColor = color };
+                var lblText = new Label { Text = $"{t.Description} | {t.Date:MMM d, y} | {sign}{t.Amount:C2}", Location = new Point(56, 10), AutoSize = true, Font = Theme.BodyFont, ForeColor = Theme.TextPrimary, MaximumSize = new Size(rowWidth - 60, 0) };
+                row.Controls.Add(lblIcon);
+                row.Controls.Add(lblText);
+                var wrap = new Panel { Size = new Size(contentWidth, 48), Margin = new Padding(0, 0, 0, Theme.PadSmall) };
+                wrap.Controls.Add(row);
+                row.Location = new Point((contentWidth - rowWidth) / 2, 2);
+                _transFlow.Controls.Add(wrap);
             }
+            _transFlow.PerformLayout();
+            _transFlow.Refresh();
+        }
+
+        // Expand both boxes to fit content and keep them the same height
+        if (_leftBox != null && _rightBox != null)
+        {
+            const int headerHeight = 28 + Theme.PadSmall;
+            const int accountRowHeight = 60 + Theme.PadSmall;
+            const int transRowHeight = 48 + Theme.PadSmall;
+            int leftContentHeight = headerHeight + (_accountsFlow?.Controls.Count ?? 0) * accountRowHeight;
+            int rightContentHeight = headerHeight + (_transFlow?.Controls.Count ?? 0) * transRowHeight;
+            // Add small buffer so last row isn't clipped by layout
+            int sharedContentHeight = Math.Max(leftContentHeight, rightContentHeight) + Theme.PadSmall;
+            int boxHeight = Theme.PadMedium * 2 + sharedContentHeight;
+            boxHeight = Math.Max(boxHeight, 120);
+            var size = new Size(_boxWidth, boxHeight);
+            _leftBox.Size = size;
+            _rightBox.Size = size;
+            _leftBox.PerformLayout();
+            _rightBox.PerformLayout();
         }
     }
 }
