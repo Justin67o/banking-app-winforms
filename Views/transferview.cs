@@ -50,7 +50,7 @@ public class TransferView : UserControl
         flow.Controls.Add(_titleWrap);
 
         _wrapper = new Panel { Height = 600, Margin = new Padding(0, 0, 0, Theme.PadMedium) };
-        const int cardWidth = 300;
+        const int cardWidth = 420;
         _card = new Panel { BackColor = Theme.Surface, BorderStyle = BorderStyle.FixedSingle, Size = new Size(cardWidth, 580), Padding = new Padding(Theme.PadXLarge), Location = new Point(0, 0) };
         flow.Controls.Add(_wrapper);
         _wrapper.Controls.Add(_card);
@@ -102,7 +102,7 @@ public class TransferView : UserControl
             if (_contentWrap == null || _card == null || _wrapper == null) return;
             int availableWidth = _contentWrap.ClientSize.Width - _contentWrap.Padding.Horizontal;
             if (availableWidth <= 0) return;
-            const int cardWidth = 300;
+            const int cardWidth = 420;
             _card.Width = cardWidth;
             int fieldWidth = cardWidth - 40;
             if (_comboFrom != null) _comboFrom.Width = fieldWidth;

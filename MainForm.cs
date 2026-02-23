@@ -32,7 +32,6 @@ public partial class MainForm : Form
         var lblBrand = new Label
         {
             Text = "🏦 Banking App",
-            Location = new Point(Theme.PadMedium, 14),
             AutoSize = true,
             Font = new Font("Segoe UI", 12, FontStyle.Bold),
             ForeColor = Theme.Primary
@@ -40,7 +39,6 @@ public partial class MainForm : Form
         var btnDash = new Button
         {
             Text = "Dashboard",
-            Location = new Point(200, 12),
             Size = new Size(100, 32),
             FlatStyle = FlatStyle.Flat,
             BackColor = Theme.Surface,
@@ -49,7 +47,6 @@ public partial class MainForm : Form
         var btnAccounts = new Button
         {
             Text = "Accounts",
-            Location = new Point(308, 12),
             Size = new Size(100, 32),
             FlatStyle = FlatStyle.Flat,
             BackColor = Theme.Surface,
@@ -58,7 +55,6 @@ public partial class MainForm : Form
         var btnTrans = new Button
         {
             Text = "Transactions",
-            Location = new Point(416, 12),
             Size = new Size(100, 32),
             FlatStyle = FlatStyle.Flat,
             BackColor = Theme.Surface,
@@ -67,7 +63,6 @@ public partial class MainForm : Form
         var btnTransfer = new Button
         {
             Text = "Transfer",
-            Location = new Point(524, 12),
             Size = new Size(100, 32),
             FlatStyle = FlatStyle.Flat,
             BackColor = Theme.Surface,
@@ -76,7 +71,6 @@ public partial class MainForm : Form
         var lblUser = new Label
         {
             Text = AuthService.Instance.GetUsername(),
-            Location = new Point(729, 16),
             AutoSize = true,
             ForeColor = Theme.TextPrimary,
             Font = Theme.BodyFont
@@ -84,11 +78,27 @@ public partial class MainForm : Form
         var btnLogout = new Button
         {
             Text = "Logout",
-            Location = new Point(809, 12),
             Size = new Size(80, 32),
             FlatStyle = FlatStyle.Flat,
             BackColor = Theme.Danger,
             ForeColor = Color.White
+        };
+
+        nav.Layout += (_, _) =>
+        {
+            int w = nav.ClientSize.Width - nav.Padding.Horizontal;
+            int left = nav.Padding.Left;
+            int brandW = lblBrand.PreferredWidth;
+            int groupW = brandW + 12 + 100 * 4 + 12 * 3;
+            int startX = left + Math.Max(0, (w - groupW) / 2);
+            lblBrand.Location = new Point(startX, 14);
+            btnDash.Location = new Point(startX + brandW + 12, 12);
+            btnAccounts.Location = new Point(startX + brandW + 12 + 112, 12);
+            btnTrans.Location = new Point(startX + brandW + 12 + 224, 12);
+            btnTransfer.Location = new Point(startX + brandW + 12 + 336, 12);
+            int rightX = nav.ClientSize.Width - nav.Padding.Right - 80 - 12 - lblUser.PreferredWidth;
+            lblUser.Location = new Point(rightX, 16);
+            btnLogout.Location = new Point(nav.ClientSize.Width - nav.Padding.Right - 80, 12);
         };
 
         btnDash.Click += (_, _) => ShowView("Dashboard");
