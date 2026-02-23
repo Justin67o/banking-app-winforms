@@ -11,6 +11,10 @@ public class TransferView : UserControl
     private TextBox? _txtDesc;
     private Label? _lblError;
     private Label? _lblSuccess;
+    private Panel? _contentWrap;
+    private Panel? _card;
+    private Panel? _wrapper;
+    private Panel? _titleWrap;
 
     public TransferView(Action<string, string?> navigate)
     {
@@ -19,28 +23,41 @@ public class TransferView : UserControl
         BuildUi();
     }
 
-        private void BuildUi()
+    private void BuildUi()
     {
         var scroll = new Panel { Dock = DockStyle.Fill, AutoScroll = true, BackColor = Theme.Background };
-        var contentWrap = new Panel { AutoSize = true, BackColor = Theme.Background, MaximumSize = new Size(800, 0) };
+        _contentWrap = new Panel { Dock = DockStyle.Fill, BackColor = Theme.Background, Padding = new Padding(100, Theme.PadMedium, 100, Theme.PadMedium) };
         var flow = new FlowLayoutPanel
         {
             FlowDirection = FlowDirection.TopDown,
             WrapContents = false,
             AutoSize = true,
             BackColor = Theme.Background,
-            Padding = new Padding(Theme.PadMedium)
+            Dock = DockStyle.Top
         };
 
-        flow.Controls.Add(new Label { Text = "Transfer Money", Font = Theme.TitleFont, ForeColor = Theme.TextPrimary, AutoSize = true, Margin = new Padding(-Theme.PadMedium, 0, 0, 0) });
-        flow.Controls.Add(new Label { Text = "Send money between your accounts", Font = Theme.BodyFont, ForeColor = Theme.TextSecondary, AutoSize = true, Margin = new Padding(0, Theme.PadSmall, 0, Theme.PadLarge) });
+        _titleWrap = new Panel { Height = 70, Margin = new Padding(0, 0, 0, Theme.PadMedium) };
+        var titleLbl = new Label { Text = "Transfer Money", Font = Theme.TitleFont, ForeColor = Theme.TextPrimary, AutoSize = true };
+        var subtitleLbl = new Label { Text = "Send money between your accounts", Font = Theme.BodyFont, ForeColor = Theme.TextSecondary, AutoSize = true };
+        _titleWrap.Controls.Add(titleLbl);
+        _titleWrap.Controls.Add(subtitleLbl);
+        _titleWrap.Layout += (_, _) =>
+        {
+            if (_titleWrap == null) return;
+            titleLbl.Location = new Point(Math.Max(0, (_titleWrap.ClientSize.Width - titleLbl.Width) / 2), 0);
+            subtitleLbl.Location = new Point(Math.Max(0, (_titleWrap.ClientSize.Width - subtitleLbl.Width) / 2), titleLbl.Height + Theme.PadSmall);
+        };
+        flow.Controls.Add(_titleWrap);
 
-        var card = new Panel { BackColor = Theme.Surface, BorderStyle = BorderStyle.FixedSingle, Size = new Size(520, 380), Padding = new Padding(Theme.PadXLarge) };
-        flow.Controls.Add(card);
+        _wrapper = new Panel { Height = 600, Margin = new Padding(0, 0, 0, Theme.PadMedium) };
+        const int cardWidth = 300;
+        _card = new Panel { BackColor = Theme.Surface, BorderStyle = BorderStyle.FixedSingle, Size = new Size(cardWidth, 580), Padding = new Padding(Theme.PadXLarge), Location = new Point(0, 0) };
+        flow.Controls.Add(_wrapper);
+        _wrapper.Controls.Add(_card);
 
-        var y = 20;
-        card.Controls.Add(new Label { Text = "From Account", Location = new Point(20, y), ForeColor = Theme.TextPrimary, Font = Theme.BodyFont }); y += 24;
-        _comboFrom = new ComboBox { Location = new Point(20, y), Width = 400, DropDownStyle = ComboBoxStyle.DropDownList, Font = Theme.BodyFont }; y += 32;
+        var y = 24;
+        _card.Controls.Add(new Label { Text = "From Account", Location = new Point(20, y), ForeColor = Theme.TextPrimary, Font = Theme.BodyFont }); y += 32;
+        _comboFrom = new ComboBox { Location = new Point(20, y), Width = cardWidth - 40, DropDownStyle = ComboBoxStyle.DropDownList, Font = Theme.BodyFont }; y += 44;
         _comboFrom.SelectedIndexChanged += (_, _) =>
         {
             _comboTo!.Items.Clear();
@@ -49,37 +66,55 @@ public class TransferView : UserControl
                 _comboTo.Items.Add(new AccountItem { Id = a.Id, Text = $"{a.AccountName} ({a.AccountNumber})" });
             _comboTo.DisplayMember = "Text";
         };
-        card.Controls.Add(_comboFrom);
+        _card.Controls.Add(_comboFrom);
 
-        card.Controls.Add(new Label { Text = "To Account", Location = new Point(20, y), ForeColor = Theme.TextPrimary, Font = Theme.BodyFont }); y += 24;
-        _comboTo = new ComboBox { Location = new Point(20, y), Width = 400, DropDownStyle = ComboBoxStyle.DropDownList, Font = Theme.BodyFont }; y += 32;
-        card.Controls.Add(_comboTo);
+        _card.Controls.Add(new Label { Text = "To Account", Location = new Point(20, y), ForeColor = Theme.TextPrimary, Font = Theme.BodyFont }); y += 32;
+        _comboTo = new ComboBox { Location = new Point(20, y), Width = cardWidth - 40, DropDownStyle = ComboBoxStyle.DropDownList, Font = Theme.BodyFont }; y += 44;
+        _card.Controls.Add(_comboTo);
 
-        card.Controls.Add(new Label { Text = "Amount", Location = new Point(20, y), ForeColor = Theme.TextPrimary, Font = Theme.BodyFont }); y += 24;
-        _numAmount = new NumericUpDown { Location = new Point(20, y), Width = 140, Minimum = 0.0m, Maximum = 999999m, DecimalPlaces = 2, Font = Theme.BodyFont }; y += 36;
-        card.Controls.Add(_numAmount);
+        _card.Controls.Add(new Label { Text = "Amount", Location = new Point(20, y), ForeColor = Theme.TextPrimary, Font = Theme.BodyFont }); y += 32;
+        _numAmount = new NumericUpDown { Location = new Point(20, y), Width = 140, Minimum = 0.0m, Maximum = 999999m, DecimalPlaces = 2, Font = Theme.BodyFont }; y += 44;
+        _card.Controls.Add(_numAmount);
 
-        card.Controls.Add(new Label { Text = "Description (optional)", Location = new Point(20, y), ForeColor = Theme.TextPrimary, Font = Theme.BodyFont }); y += 24;
-        _txtDesc = new TextBox { Location = new Point(20, y), Width = 400, Font = Theme.BodyFont }; y += 36;
-        card.Controls.Add(_txtDesc);
+        _card.Controls.Add(new Label { Text = "Description (optional)", Location = new Point(20, y), ForeColor = Theme.TextPrimary, Font = Theme.BodyFont }); y += 32;
+        _txtDesc = new TextBox { Location = new Point(20, y), Width = cardWidth - 40, Font = Theme.BodyFont }; y += 44;
+        _card.Controls.Add(_txtDesc);
 
-        _lblError = new Label { Location = new Point(20, y), AutoSize = true, ForeColor = Theme.Danger, BackColor = Theme.ErrorBg, Font = Theme.BodySmallFont }; y += 28;
-        _lblSuccess = new Label { Location = new Point(20, y), AutoSize = true, ForeColor = Theme.Secondary, BackColor = Theme.SuccessBg, Font = Theme.BodySmallFont }; y += 32;
-        card.Controls.Add(_lblError!);
-        card.Controls.Add(_lblSuccess!);
+        _lblError = new Label { Location = new Point(20, y), AutoSize = true, ForeColor = Theme.Danger, BackColor = Theme.ErrorBg, Font = Theme.BodySmallFont }; y += 36;
+        _lblSuccess = new Label { Location = new Point(20, y), AutoSize = true, ForeColor = Theme.Secondary, BackColor = Theme.SuccessBg, Font = Theme.BodySmallFont }; y += 40;
+        _card.Controls.Add(_lblError!);
+        _card.Controls.Add(_lblSuccess!);
 
         var btnCancel = new Button { Text = "Cancel", Location = new Point(20, y), Size = new Size(100, 36), BackColor = Theme.Background, ForeColor = Theme.TextPrimary, FlatStyle = FlatStyle.Flat, Font = Theme.BodyFont };
         var btnTransfer = new Button { Text = "Transfer Money", Location = new Point(130, y), Size = new Size(140, 36), BackColor = Theme.Primary, ForeColor = Color.White, FlatStyle = FlatStyle.Flat, Font = Theme.BodyFont };
         btnCancel.Click += (_, _) => ResetForm();
         btnTransfer.Click += BtnTransfer_Click;
-        card.Controls.Add(btnCancel);
-        card.Controls.Add(btnTransfer);
+        _card.Controls.Add(btnCancel);
+        _card.Controls.Add(btnTransfer);
 
-        contentWrap.Controls.Add(flow);
-        flow.Location = new Point(0, Theme.PadMedium);
-        scroll.Controls.Add(contentWrap);
-        contentWrap.Location = new Point(0, 0);
+        _contentWrap.Controls.Add(flow);
+        flow.Location = new Point(0, 0);
+        scroll.Controls.Add(_contentWrap);
         Controls.Add(scroll);
+
+        void OnContentResize()
+        {
+            if (_contentWrap == null || _card == null || _wrapper == null) return;
+            int availableWidth = _contentWrap.ClientSize.Width - _contentWrap.Padding.Horizontal;
+            if (availableWidth <= 0) return;
+            const int cardWidth = 300;
+            _card.Width = cardWidth;
+            int fieldWidth = cardWidth - 40;
+            if (_comboFrom != null) _comboFrom.Width = fieldWidth;
+            if (_comboTo != null) _comboTo.Width = fieldWidth;
+            if (_txtDesc != null) _txtDesc.Width = fieldWidth;
+            _wrapper.Width = availableWidth;
+            _card.Left = Math.Max(0, (availableWidth - cardWidth) / 2);
+            _card.Top = 0;
+            if (_titleWrap != null) _titleWrap.Width = availableWidth;
+        }
+        _contentWrap.Resize += (_, _) => OnContentResize();
+        Load += (_, _) => OnContentResize();
     }
 
     private void BtnTransfer_Click(object? sender, EventArgs e)
