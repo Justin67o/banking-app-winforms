@@ -100,7 +100,7 @@ public class TransactionsView : UserControl
                 var sign = t.Type == "debit" ? "-" : "+";
                 var accName = accountService.GetAccountById(t.AccountId)?.AccountName ?? "Unknown";
                 var to = string.IsNullOrEmpty(t.RecipientAccount) ? "" : " To: " + (accountService.GetAccountById(t.RecipientAccount)?.AccountName ?? "Unknown");
-                var row = new Panel { Size = new Size(rowWidth, 80), BackColor = Theme.Surface, BorderStyle = BorderStyle.FixedSingle, Margin = new Padding(0, 0, 0, Theme.PadSmall) };
+                var row = new Panel { Size = new Size(rowWidth - 20, 80), BackColor = Theme.Surface, BorderStyle = BorderStyle.FixedSingle, Margin = new Padding(0, 0, 0, Theme.PadSmall) };
                 var lblIcon = new Label { Text = icon, Size = new Size(50, 50), Location = new Point(Theme.PadSmall, 15), BackColor = iconBg, TextAlign = ContentAlignment.MiddleCenter, Font = new Font("Segoe UI", 14), ForeColor = amountColor };
                 var lblDesc = new Label { Text = $"{t.Description}\r\n{accName} | {t.Date:MMM d, y h:mm tt}{to}", Location = new Point(72, 10), MaximumSize = new Size(rowWidth - 220, 0), AutoSize = true, Font = Theme.BodyFont, ForeColor = Theme.TextPrimary };
                 var lblAmt = new Label { Text = $"{sign}{t.Amount:C2}", Location = new Point(rowWidth - 120, 28), AutoSize = true, Font = Theme.SectionFont, ForeColor = amountColor };

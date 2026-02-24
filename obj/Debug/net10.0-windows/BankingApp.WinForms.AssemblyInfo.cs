@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("BankingApp.WinForms")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+169480515ecf6c51b9fabe205885521588527c6d")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+2e61cb6d40b84266cf043995541bdb3b3bed0b20")]
 [assembly: System.Reflection.AssemblyProductAttribute("BankingApp.WinForms")]
 [assembly: System.Reflection.AssemblyTitleAttribute("BankingApp.WinForms")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
