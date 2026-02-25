@@ -90,7 +90,13 @@ public class AccountsView : UserControl
         void OnContentResize()
         {
             if (_contentWrap == null) return;
-            int availableWidth = _contentWrap.ClientSize.Width - _contentWrap.Padding.Horizontal;
+            int clientWidth = _contentWrap.ClientSize.Width;
+            int horizontalPad = clientWidth < 900 ? Theme.PadLarge : 100;
+            if (_contentWrap.Padding.Left != horizontalPad || _contentWrap.Padding.Right != horizontalPad)
+            {
+                _contentWrap.Padding = new Padding(horizontalPad, _contentWrap.Padding.Top, horizontalPad, _contentWrap.Padding.Bottom);
+            }
+            int availableWidth = clientWidth - _contentWrap.Padding.Horizontal;
             if (availableWidth <= 0) return;
             if (_titleWrap != null) _titleWrap.Width = availableWidth;
             if (_cardsWrapper != null) _cardsWrapper.Width = availableWidth;

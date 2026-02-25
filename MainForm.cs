@@ -19,7 +19,9 @@ public partial class MainForm : Form
         SetBounds(bounds.X, bounds.Y, bounds.Width, bounds.Height);
         WindowState = FormWindowState.Normal;
         BackColor = Theme.Background;
-        MinimumSize = new Size(1024, 600);
+        int minWidth = Math.Min(1024, bounds.Width);
+        int minHeight = Math.Min(600, bounds.Height);
+        MinimumSize = new Size(minWidth, minHeight);
         StartPosition = FormStartPosition.CenterScreen;
 
         var nav = new Panel
