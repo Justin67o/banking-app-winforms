@@ -2,7 +2,7 @@ import time
 from pywinauto import Application
 
 # Update this to the actual path of your built .exe
-APP_PATH = r"C:\path\to\BankingApp.WinForms\bin\Debug\net8.0-windows\BankingApp.WinForms.exe"
+APP_PATH = r"C:\Users\justi\banking-app-winforms\bin\Debug\net10.0-windows\BankingApp.WinForms.exe"
 APP_TITLE = "Banking App"
 
 
@@ -29,8 +29,11 @@ def login(app, username="user", password="password"):
     Returns the main window after a successful login.
     """
     win = get_window(app)
-    win.child_window(class_name="TextBox", found_index=0).set_edit_text(username)
-    win.child_window(class_name="TextBox", found_index=1).set_edit_text(password)
+    print(win.print_control_identifiers())
+    print(win.descendants())
+    edits = win.descendants(control_type="Edit")
+    edits[0].type_keys(username)
+    edits[1].type_keys(password)
     win.child_window(title="Sign In", control_type="Button").click()
     time.sleep(0.8)
     return get_window(app)
